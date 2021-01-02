@@ -1,0 +1,40 @@
+.viewNoteHead{
+  border-top: 1px solid #f1f1f1;
+  line-height: 60pt;
+  border-bottom: 1px solid #f1f1f1;
+}
+.card-text{
+  height: 48px;
+  overflow: hidden;
+}
+.btn-box{
+  display: flow-root;
+    border: 1px solid #f1f1f1;
+    padding: 10px 20px;
+    border-radius: 10px;
+}
+.btn-box button{
+  display: flex;
+  flex-direction: row;
+  float: left;
+}
+.btn-box button i{
+  margin: 4px 4px;
+}
+
+.noteCard{
+  position: relative;
+}
+.noteCard .noteCardDate{
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 20px;
+  background: aliceblue;
+  color: cadetblue;
+  font-size: 12px;
+  text-align: right;
+  padding-right: 10px;
+}
