@@ -1,90 +1,109 @@
-import React from 'react'
-import AddNotes from './AddNotes';
+import React, { useEffect, useState } from 'react'
 import './App.css';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css'
 
-export const ViewContext= React.createContext();
+export const ViewContext = React.createContext();
 function ViewNotes() {
-    let data = [];
-    let WithoutFilteredData=[];
-    if (localStorage.getItem('data')) {
-        data = JSON.parse(localStorage.getItem('data'));
-    }
-    else {
-        data = null
-    }
-    let dataObj=[];
-    if(data){
-        for(let i=0;i<data.length;i++){
-            dataObj.push(JSON.parse(data[i]));
+    let [newData, setNewData] = useState([]);
+    useEffect(() => {
+        let tempData = [];
+        if (localStorage.getItem('data')) {
+            tempData = JSON.parse(localStorage.getItem('data'));
         }
-        WithoutFilteredData=dataObj;
-    }
-    else{
-        dataObj=null
-    }
-    function deleteHandler(d1){
-        dataObj.splice(dataObj.indexOf(d1),1);       
-        
-        if(dataObj && dataObj.length>0){
-            let tempDb=[];
-            for(let i=0;i<dataObj.length;i++){
-                tempDb.push(JSON.stringify(dataObj[i]))
+        else {
+            tempData = null;
+        }
+        setNewData(tempData);
+        console.log(newData);
+    }, [localStorage.getItem('data')]);
+
+    let [showData, setShowData] = useState([newData]);
+    useEffect(() => {
+        let tempData = [];
+        if (newData) {
+            for (let i = 0; i < newData.length; i++) {
+                tempData.push(JSON.parse(newData[i]))
+            }
+        }
+        setShowData(tempData);
+        console.log(tempData)
+    }, [newData]);
+
+    function deleteHandler(d1) {
+        showData.splice(showData.indexOf(d1), 1);
+
+        if (showData && showData.length > 0) {
+            let tempDb = [];
+            for (let i = 0; i < showData.length; i++) {
+                tempDb.push(JSON.stringify(showData[i]))
             }
             localStorage.setItem('data', JSON.stringify(tempDb));
         }
-        else{
+        else {
             localStorage.clear();
         }
-        window.location.reload();
+        setShowData(newData);
     }
+    let day=new Date().getDate();
+    let month=new Date().getMonth();
+    let year=new Date().getFullYear();
+    let dateStr=(year+"-"+month+1+"-"+day);
+    let [fromDate,setFromDate]=useState(new Date(dateStr));
+    let [toDate,setToDate]=useState(new Date());
 
-    function editHandler(d1){      
+    function editHandler(d1) {
 
     }
 
     function taskDate(dateMilli) {
-        console.log(dateMilli)
         var d = (new Date(dateMilli) + '').split(' ');
         d[2] = d[2] + ',';
-    
+
         return [d[0], d[1], d[2], d[3]].join(' ');
     }
-
-    function sortResult(prop,asc){
-        console.log(prop)
-        dataObj=WithoutFilteredData.filter(function(a,b){
-            if(asc){
-                return (a[prop]>b[prop])?1:((a[prop]<b[prop])?-1:0)
-            }
-            else{
-                return (b[prop]>a[prop])?1:((b[prop]<[prop])?-1:0)
-            }
+    function filterHandler(){
+        let tempData=[];
+        let tempData1=[];
+        for(let i=0;i<newData.length;i++){
+            tempData.push(JSON.parse(newData[i]));
+        }
+        tempData.filter((x)=>{
+            let tempComingDate=new Date(x.date.split("T")[0]).getTime();
+            console.log(fromDate.getTime())
+                console.log(tempComingDate)
+                console.log(toDate.getTime())
+            if(tempComingDate>=fromDate.getTime() && tempComingDate<=toDate.getTime()){
+                console.log("inside If")
+                tempData1.push(x);
+            }  
         })
+        console.log(tempData);
+        console.log(tempData1);
+        setShowData(tempData1);
     }
-
     return (
         <div className='container my-3'>
             <h1 className="viewNoteHead">Your Notes</h1>
             <div className="btn-box">
-                <button className="btn btn-secondary m-1" onClick={()=>sortResult(WithoutFilteredData,false)}>Newest <i className="fas fa-sort-amount-up"></i></button>
-                <button className="btn btn-secondary m-1" onClick={()=>sortResult(WithoutFilteredData.filter(a=>a.date),true)}>Oldest <i className="fas fa-sort-amount-down"></i></button>
+                <label className="mx-2">From Date <DatePicker showYearDropdown scrollableMonthYearDropdown dateFormat="dd/MM/yyyy" selected={fromDate} onChange={date=>{setFromDate(date)}} /></label>
+                <label className="mx-2">To Date <DatePicker showYearDropdown scrollableMonthYearDropdown dateFormat="dd/MM/yyyy" selected={toDate} onChange={date=>setToDate(date)} /></label>
+                <button onClick={()=>filterHandler()} className="btn btn-secondary m-1 d-inline-block" >Filter</button>
             </div>
             <div className="row container-fluid" id="notes">
                 {
-                    dataObj ?
-                         dataObj.map(( d, index) => (
-                             
+                    showData ?
+                        showData.map((d, index) => (
                             <div key={index} className="noteCard my-2 mx-2 card" style={{ "width": "18rem" }}>
                                 <div className="card-body">
                                     <span className="noteCardDate">{taskDate(d.date)}</span>
                                     <h5 className="card-title">{d.title}</h5>
                                     <p className="card-text">{d.content}</p>
-                                    <button onClick={()=>deleteHandler(d)} className="btn btn-primary m-1">Delete Note</button>
-                                    {/* <button onClick={()=>editHandler(d)} className="btn btn-primary m-1">Edit Note</button> */}
+                                    <button onClick={() => deleteHandler(d)} className="btn btn-primary m-1">Delete Note</button>
                                 </div>
                             </div>
                         )
-                    ) : <div>Nothing to show! Please add a Note to populate the list</div>
+                        ) : <div>Nothing to show! Please add a Note to populate the list</div>
                 }
             </div>
         </div>
