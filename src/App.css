@@ -13,11 +13,11 @@
     padding: 10px 20px;
     border-radius: 10px;
 }
-.btn-box button{
+/* .btn-box button{
   display: flex;
   flex-direction: row;
   float: left;
-}
+} */
 .btn-box button i{
   margin: 4px 4px;
 }
