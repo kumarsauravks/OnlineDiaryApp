@@ -1,15 +1,16 @@
 import React, { useState } from 'react'
 import ViewNotes from './ViewNotes';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css'
 
 function AddNotes() {
-    let [note, setNote] = useState({title: '', content: '', date: new Date() });
+    const initialValue={title: '', content: '', date: new Date() }
+    let [note, setNote] = useState(initialValue);
     function clickHandler() {
         if(note.title==="" && note.content===""){
             alert("Please add text to your notes");
         }
         else{
-            setNote({ ...note, date: new Date() })
-
             let notes = [];
             if (localStorage.getItem('data')) {
                 notes = JSON.parse(localStorage.getItem('data'));
@@ -20,6 +21,7 @@ function AddNotes() {
             console.log(notes)
             localStorage.setItem('data', JSON.stringify(notes));
             clearText();
+            setNote(initialValue);
         }
     }
     function clearText(){
@@ -38,6 +40,10 @@ function AddNotes() {
                         <input type="text" className="form-control"
                             id="addTitle" placeholder="Enter a Note title"
                             onChange={e => setNote({ ...note, title: e.target.value })} />
+                    </div>
+                    <div className="form-group">
+                        <h5 className="card-title">Add Date</h5>
+                        <DatePicker showYearDropdown scrollableMonthYearDropdown dateFormat="dd/MM/yyyy" id="datePicker" selected={note.date} onChange={e=>setNote({...note,date:e})} />
                     </div>
                     <h5 className="card-title">Add a Note to Your Diary</h5>
                     <div className="form-group">
